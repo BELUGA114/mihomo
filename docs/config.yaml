@@ -966,7 +966,7 @@ proxies: # socks5
     reality-opts:
       public-key: xxx
       short-id: xxx # optional
-      support-x25519mlkem768: false # 如果服务端支持可手动设置为true
+      # support-x25519mlkem768: false # 默认启用，仅当服务端为不支持该混合组的旧版 REALITY 时才需设置为 false
     client-fingerprint: chrome # cannot be empty
 
   - name: "vless-reality-grpc"
@@ -993,7 +993,7 @@ proxies: # socks5
     reality-opts:
       public-key: CrrQSjAG_YkHLwvM2M-7XkKJilgL5upBKCp0od0tLhE
       short-id: 10f897e26c4b9478
-      support-x25519mlkem768: false # 如果服务端支持可手动设置为true
+      # support-x25519mlkem768: false # 默认启用，仅当服务端为不支持该混合组的旧版 REALITY 时才需设置为 false
 
   - name: "vless-ws"
     type: vless

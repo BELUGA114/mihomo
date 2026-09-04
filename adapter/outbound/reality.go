@@ -8,19 +8,24 @@ import (
 	"fmt"
 
 	tlsC "github.com/metacubex/mihomo/component/tls"
+
+	"github.com/samber/lo"
 )
 
 type RealityOptions struct {
 	PublicKey string `proxy:"public-key"`
 	ShortID   string `proxy:"short-id,omitempty"`
 
-	SupportX25519MLKEM768 bool `proxy:"support-x25519mlkem768,omitempty"`
+	// nil means enabled. stripping X25519MLKEM768 out of a fingerprint that advertises it
+	// leaves a ClientHello no shipped browser sends, so only set this false when talking to
+	// a pre-2025 reality server that cannot handle the hybrid group.
+	SupportX25519MLKEM768 *bool `proxy:"support-x25519mlkem768,omitempty"`
 }
 
 func (o RealityOptions) Parse() (*tlsC.RealityConfig, error) {
 	if o.PublicKey != "" {
 		config := new(tlsC.RealityConfig)
-		config.SupportX25519MLKEM768 = o.SupportX25519MLKEM768
+		config.SupportX25519MLKEM768 = lo.FromPtrOr(o.SupportX25519MLKEM768, true)
 
 		const x25519ScalarSize = 32
 		publicKey, err := base64.RawURLEncoding.DecodeString(o.PublicKey)
