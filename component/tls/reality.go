@@ -71,9 +71,12 @@ func GetRealityConn(ctx context.Context, conn net.Conn, fingerprint UClientHello
 		binary.BigEndian.PutUint64(hello.SessionId, uint64(ntp.Now().Unix()))
 
 		copy(hello.SessionId[8:], realityConfig.ShortID[:])
-		hello.SessionId[0] = 1
-		hello.SessionId[1] = 8
-		hello.SessionId[2] = 2
+		// the Xray-core version the server compares against its minClientVer, whose default is
+		// now 26.3.27, so 1.8.2 was rejected and the connection silently relayed to the fallback
+		// target. these bytes sit inside the AEAD-sealed session id, not observable on the wire.
+		hello.SessionId[0] = 26
+		hello.SessionId[1] = 7
+		hello.SessionId[2] = 28
 
 		//log.Debugln("REALITY hello.sessionId[:16]: %v", hello.SessionId[:16])
 
