@@ -60,11 +60,11 @@ func GetFingerprint(clientFingerprint string) (UClientHelloID, bool) {
 }
 
 var randomFingerprint = once.OnceValue(func() UClientHelloID {
+	// chrome only: utls resolves the other _Auto aliases to Firefox 120, Safari 16.0 and iOS 14,
+	// and this is picked once per process, so any of them would pin a years-old ClientHello for
+	// the whole process lifetime. the chooser is kept so entries can be restored later.
 	chooser, _ := weightedrand.NewChooser(
 		weightedrand.NewChoice("chrome", 6),
-		weightedrand.NewChoice("safari", 3),
-		weightedrand.NewChoice("ios", 2),
-		weightedrand.NewChoice("firefox", 1),
 	)
 	initClient := chooser.Pick()
 	log.Debugln("initial random HelloID:%s", initClient)
