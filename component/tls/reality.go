@@ -19,6 +19,7 @@ import (
 
 	"github.com/metacubex/mihomo/log"
 	"github.com/metacubex/mihomo/ntp"
+	"github.com/metacubex/mihomo/transport/xhttp"
 
 	"github.com/metacubex/http"
 	"github.com/metacubex/randv2"
@@ -155,7 +156,14 @@ func realityClientFallback(uConn net.Conn, serverName string, fingerprint utls.C
 	if err != nil {
 		return
 	}
-	request.Header.Set("User-Agent", fingerprint.Client)
+	// fingerprint.Client is a bare name like "Chrome", not a real User-Agent, so let xhttp's
+	// browser masquerade build the navigation headers. only families it knows are passed on,
+	// anything else gets its chrome default.
+	switch browser := strings.ToLower(fingerprint.Client); browser {
+	case "chrome", "firefox", "safari", "edge":
+		request.Header.Set("User-Agent", browser)
+	}
+	xhttp.TryDefaultHeadersWith(request.Header, "nav")
 	request.AddCookie(&http.Cookie{Name: "padding", Value: strings.Repeat("0", randv2.IntN(32)+30)})
 	response, err := client.Do(request)
 	if err != nil {
